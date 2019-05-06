@@ -11,7 +11,7 @@ from PIL import ImageFont
 from PIL import ImageDraw
 from PIL import ImageFilter
 from PIL import ImageEnhance
-
+from io import StringIO
 app = Flask(__name__)
 
 
@@ -72,7 +72,7 @@ def genMeme(url):
     # fullpath = "./static/memes/" + path
     #
     # new_meme.save(fullpath, "JPEG", quality=90)
-    return redirect(url_for('showRedirMeme', messages=path))
+    # return redirect(url_for('showRedirMeme', messages=path))
 
     #return send_file(fullpath,mimetype="image/jpeg")
 
