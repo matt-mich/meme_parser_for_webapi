@@ -21,6 +21,7 @@ def showRedirMeme():
     #path = "00562.jpg"
     fullpath = "./static/memes/" + path
     x = 0
+
     while not os.path.isfile(fullpath):
         x += 1
     print(x)
