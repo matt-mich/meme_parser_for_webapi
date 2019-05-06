@@ -5,7 +5,6 @@ from numpy import random
 import os
 import requests
 from bs4 import BeautifulSoup
-import StringIO
 from PIL import Image
 from PIL import ImageFont
 from PIL import ImageDraw
