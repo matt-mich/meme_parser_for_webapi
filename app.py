@@ -5,7 +5,7 @@ from numpy import random
 import os
 import requests
 from bs4 import BeautifulSoup
-
+import StringIO
 from PIL import Image
 from PIL import ImageFont
 from PIL import ImageDraw
@@ -29,8 +29,13 @@ def showRedirMeme():
 
 @app.route("/memes/<path:path>")
 def showMeme(path):
+    counter = 0
     while os.path.isdir('./static/memes/' + path) == False:
-        print("Waiting...")
+        counter += 1
+        if(counter > 1000):
+            return """
+                <h1>Hello heroku</h1>
+            """
     new_meme = Image.open("./static/under_construction.jpg")
     fullpath = "./static/memes/" + path
     new_meme.save(fullpath)
@@ -55,11 +60,18 @@ def genMeme(url):
     src, alt = getImageLinks(url)
     new_meme = makeMeme(src, alt)
     #new_meme = Image.open("./static/under_construction.jpg")
-    meme_val = random.randint(0,100000)
-    meme_val = str(meme_val).zfill(5)
-    path = meme_val+".jpg"
-    fullpath = "./static/memes/" + path
-    new_meme.save(fullpath, "JPEG", quality=90)
+    img_io = StringIO()
+    new_meme.save(img_io, 'JPEG', quality=90)
+    img_io.seek(0)
+    return send_file(img_io, mimetype='image/jpeg')
+
+    # meme_val = random.randint(0,100000)
+    # meme_val = str(meme_val).zfill(5)
+    #
+    # path = meme_val+".jpg"
+    # fullpath = "./static/memes/" + path
+    #
+    # new_meme.save(fullpath, "JPEG", quality=90)
     return redirect(url_for('showRedirMeme', messages=path))
 
     #return send_file(fullpath,mimetype="image/jpeg")
