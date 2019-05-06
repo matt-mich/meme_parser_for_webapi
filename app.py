@@ -10,7 +10,7 @@ from PIL import ImageFont
 from PIL import ImageDraw
 from PIL import ImageFilter
 from PIL import ImageEnhance
-from io import StringIO
+from io import BytesIO
 app = Flask(__name__)
 
 
@@ -59,7 +59,7 @@ def genMeme(url):
     src, alt = getImageLinks(url)
     new_meme = makeMeme(src, alt)
     #new_meme = Image.open("./static/under_construction.jpg")
-    img_io = StringIO()
+    img_io = BytesIO()
     new_meme.save(img_io, 'JPEG', quality=90)
     img_io.seek(0)
     return send_file(img_io, mimetype='image/jpeg')
