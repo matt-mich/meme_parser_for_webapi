@@ -100,7 +100,7 @@ def makeMeme(img_srcs,alt_texts):
     font_size = int(img_w/17)
     outline_col = 'black'
     text_col = 'white'
-    font = ImageFont.truetype("impact.ttf", font_size)
+    font = ImageFont.truetype("./static/impact.ttf", font_size)
     # draw.text((x, y),"Sample Text",(r,g,b))
     draw_outline(img,draw, font, top_meme_text, "top", font_size, outline_col, text_col)
     draw_outline(img,draw, font, bottom_meme_text, "bottom", font_size, outline_col, text_col)
