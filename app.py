@@ -68,7 +68,7 @@ def genMeme(url):
     # meme_val = random.randint(0,100000)
     # meme_val = str(meme_val).zfill(5)
     #
-    # path = meme_val+".jpg"
+    # path = meme_val+".jpg"z
     # fullpath = "./static/memes/" + path
     #
     # new_meme.save(fullpath, "JPEG", quality=90)
@@ -105,9 +105,10 @@ def makeMeme(img_srcs,alt_texts):
     if random.random() > 0.3:
         img = fryImage(img)
     img_w, img_h = img.size
-    if img_w > 800:
+    while img_w > 800:
+        img = img.resize((int(img_w*0.8), int(img_h*0.8)))
+        img_w, img_h = img.size
 
-        img.resize((800),)
     y_top = 0
     y_bottom = 0
     draw = ImageDraw.Draw(img)
