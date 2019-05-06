@@ -56,7 +56,9 @@ def genMeme_WIKI():
 
 
 def genMeme(url):
-    id = 100
+    meme_val = random.randint(0,100000)
+    id = str(meme_val).zfill(5)
+
     src, alt = getImageLinks(url)
     new_meme = makeMeme(src, alt)
     #new_meme = Image.open("./static/under_construction.jpg")
