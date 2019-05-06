@@ -4,3 +4,4 @@ Pillow
 numpy
 bs4
 requests
+flask_s3

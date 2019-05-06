@@ -11,8 +11,8 @@ from PIL import ImageDraw
 from PIL import ImageFilter
 from PIL import ImageEnhance
 from io import BytesIO
-app = Flask(__name__)
 
+app = Flask(__name__)
 
 @app.route("/memes_redir")
 def showRedirMeme():
@@ -54,7 +54,6 @@ def genMeme_BBC():
 def genMeme_WIKI():
     return genMeme("wiki.com")
 
-
 def genMeme(url):
     meme_val = random.randint(0,100000)
     id = str(meme_val).zfill(5)
@@ -65,7 +64,8 @@ def genMeme(url):
     img_io = BytesIO()
     new_meme.save(img_io, 'JPEG', quality=90)
     img_io.seek(0)
-    return send_file(img_io, mimetype='image/jpeg', as_attachment=True, attachment_filename='%s.jpg' % id)
+
+    return send_file(img_io, mimetype='image/jpeg')
 
     # meme_val = random.randint(0,100000)
     # meme_val = str(meme_val).zfill(5)
