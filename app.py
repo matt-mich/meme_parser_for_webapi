@@ -56,13 +56,14 @@ def genMeme_WIKI():
 
 
 def genMeme(url):
+    id = 100
     src, alt = getImageLinks(url)
     new_meme = makeMeme(src, alt)
     #new_meme = Image.open("./static/under_construction.jpg")
     img_io = BytesIO()
     new_meme.save(img_io, 'JPEG', quality=90)
     img_io.seek(0)
-    return send_file(img_io, mimetype='image/jpeg')
+    return send_file(img_io, mimetype='image/jpeg', as_attachment=True, attachment_filename='%s.jpg' % id)
 
     # meme_val = random.randint(0,100000)
     # meme_val = str(meme_val).zfill(5)
@@ -104,6 +105,9 @@ def makeMeme(img_srcs,alt_texts):
     if random.random() > 0.3:
         img = fryImage(img)
     img_w, img_h = img.size
+    if img_w > 800:
+
+        img.resize((800),)
     y_top = 0
     y_bottom = 0
     draw = ImageDraw.Draw(img)
@@ -240,9 +244,10 @@ def getImageLinks(URL):
             if 'jpg' not in str(img) or 'alt=' not in str(img) or 'alt=""' in str(img) or 'production' not in str(img) :
                 imgs.remove(img)
         if 'wiki' in URL:
-            print(imgs)
-            if 'jpg' not in str(img) or 'img-loading-hide' in str(img):
+            if 'jpg' not in str(img) or 'img-loading-hide' in str(img) or 'class="hp_image"' not in str(img):
                 imgs.remove(img)
+            else:
+                print(img)
 
     imgs_src = []
     imgs_alt = []
@@ -262,14 +267,30 @@ def getImageLinks(URL):
             while img_src[0] == "/":
                 img_src = img_src[1:]
                 img_src = img_src[1:]
-
                 img_src= ''.join(('http://', img_src))
+        if 'wiki' in URL:
+            img_src = str(img)
+            img_src = img_src.split('src="', 1)[1]
+            img_src = img_src.split('"', 1)[0]
+
         imgs_src.append(img_src)
-        img_alt = str(img)
-        print(img_alt)
-        img_alt = img_alt.split('alt="', 1)[1]
-        img_alt = img_alt.split('"', 1)[0]
-        imgs_alt.append(img_alt)
+        if 'wiki' not in URL:
+            img_alt = str(img)
+            print(img_alt)
+            img_alt = img_alt.split('alt="', 1)[1]
+            img_alt = img_alt.split('"', 1)[0]
+            imgs_alt.append(img_alt)
+        else:
+            img_alt = str(img)
+            print(img_alt)
+            img_alt = img_alt.split('images/', 1)[1]
+            print(img_alt)
+            img_alt = img_alt.split('/')[2]
+            img_alt = img_alt.split('.jpg', 1)[0]
+            img_alt = img_alt.split('-')
+            img_alt = " ".join(img_alt)
+            print(img_alt)
+            imgs_alt.append(img_alt)
 
     return imgs_src, imgs_alt
 
