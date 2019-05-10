@@ -1,6 +1,5 @@
-from flask import Flask, render_template, url_for, send_file, redirect, request
+from flask import Flask, send_file, request
 from datetime import datetime
-from PIL import Image
 from numpy import random
 import os
 import requests
@@ -14,24 +13,29 @@ from io import BytesIO
 
 app = Flask(__name__)
 
+"""
+Basic flask server that creates memes.
+
+Please note that you need to run the parser (gen_html.py) before this to generate the 
+static html files for BBC, CNN and WikiHow
+
+"""
+
+
 @app.route("/memes_redir")
-def showRedirMeme():
+def show_redir_meme():
     path = request.args['messages']
-    #path = "00562.jpg"
     fullpath = "./static/memes/" + path
     x = 0
-
-    while not os.path.isfile(fullpath):
-        x += 1
-    print(x)
     return send_file(fullpath, mimetype="image/jpeg")
 
+
 @app.route("/memes/<path:path>")
-def showMeme(path):
+def show_meme(path):
     counter = 0
-    while os.path.isdir('./static/memes/' + path) == False:
+    while not os.path.isdir('./static/memes/' + path):
         counter += 1
-        if(counter > 1000):
+        if counter > 1000:
             return """
                 <h1>Hello heroku</h1>
             """
@@ -42,70 +46,54 @@ def showMeme(path):
     resp.content_type = "image/jpeg"
     return send_file(fullpath, mimetype="image/jpeg")
 
+
 @app.route("/gen_meme/cnn")
-def genMeme_CNN():
-    return genMeme("cnn.com")
+def gen_meme_cnn():
+    return gen_meme("cnn.com")
+
 
 @app.route("/gen_meme/bbc")
-def genMeme_BBC():
-    return genMeme("bbc.com")
+def gen_meme_bbc():
+    return gen_meme("bbc.com")
+
 
 @app.route("/gen_meme/wiki")
-def genMeme_WIKI():
-    return genMeme("wiki.com")
+def gen_meme_wiki():
+    return gen_meme("wiki.com")
 
-def genMeme(url):
-    meme_val = random.randint(0,100000)
-    id = str(meme_val).zfill(5)
 
-    src, alt = getImageLinks(url)
-    new_meme = makeMeme(src, alt)
-    #new_meme = Image.open("./static/under_construction.jpg")
-    img_io = BytesIO()
-    new_meme.save(img_io, 'JPEG', quality=90)
-    img_io.seek(0)
-
-    return send_file(img_io, mimetype='image/jpeg')
-
-    # meme_val = random.randint(0,100000)
-    # meme_val = str(meme_val).zfill(5)
-    #
-    # path = meme_val+".jpg"z
-    # fullpath = "./static/memes/" + path
-    #
-    # new_meme.save(fullpath, "JPEG", quality=90)
-    # return redirect(url_for('showRedirMeme', messages=path))
-
-    #return send_file(fullpath,mimetype="image/jpeg")
-
+def gen_meme(url):
+    src, alt = get_image_links(url)
+    new_meme = make_meme(src, alt)
+    stream = BytesIO()
+    new_meme.save(stream, 'JPEG')
+    stream.seek(0)
 
 
 @app.route('/')
 def homepage():
-    the_time = datetime.now().strftime("%A, %d %b %Y %l:%M %p")
     return """
-    <>
-    <h1>Hello heroku</h1>
-    <p>It is currently {time}.</p>
-
+        <h1>Hello World!</h1>
     """
 
-def fetchImg(url):
+
+def fetch_img(url):
     print("URL: " + url)
     res = requests.get(url, stream=True).raw
     img = Image.open(res)
     return img
 
-def makeMeme(img_srcs,alt_texts):
-    top_meme_text = " ".join(makeMemeText(alt_texts))
-    bottom_meme_text = " ".join(makeMemeText(alt_texts))
+
+def make_meme(img_srcs,alt_texts):
+    top_meme_text = " ".join(make_meme_text(alt_texts))
+    bottom_meme_text = " ".join(make_meme_text(alt_texts))
     rand_index = random.randint(0, len(img_srcs))
-    img = fetchImg((img_srcs[rand_index]))
+    img = fetch_img((img_srcs[rand_index]))
     if random.random() > 0.9:
-        img = compressImage(img)
+        img = compress_image(img)
 
     if random.random() > 0.3:
-        img = fryImage(img)
+        img = fry_image(img)
     img_w, img_h = img.size
     while img_w > 800:
         img = img.resize((int(img_w*0.8), int(img_h*0.8)))
@@ -125,17 +113,17 @@ def makeMeme(img_srcs,alt_texts):
     img.save('sample-out.jpg')
     img = Image.open("sample-out.jpg")
     if random.random() > 0.9:
-        img = fryImage(img)
+        img = fry_image(img)
     return img
 
-def fryImage(picture):
+
+def fry_image(picture):
     type = "JPEG"
     type_ext = ".jpg"
     brightness = random.random()
     sharpness = random.random()
     contrast = random.random()
     saturation = random.random()
-    compression = random.random()
 
     enhancer = ImageEnhance.Brightness(picture)
     picture = enhancer.enhance(brightness * 5)
@@ -147,7 +135,8 @@ def fryImage(picture):
     picture = enhancer.enhance(saturation * 20)
     return picture
 
-def compressImage(picture):
+
+def compress_image(picture):
     type = "JPEG"
     type_ext = ".jpg"
     enhancer = ImageEnhance.Brightness(picture)
@@ -171,9 +160,10 @@ def draw_outline(img,draw_main, font,text, pos, font_size, outline_col, text_col
     img_w, img_h = img.size
     w, h = draw_main.textsize(text,font=font)
     x = (img_w - w)/2
+
     if pos == 'top':
         y = MARGIN
-    elif pos == 'bottom':
+    else:
         y = img_h-h - MARGIN
 
     # Create a drawing context for it.
@@ -194,7 +184,8 @@ def draw_outline(img,draw_main, font,text, pos, font_size, outline_col, text_col
     img.paste(tmp, (0, 0), tmp)
     draw_main.text((x, y), text, font=font, fill=text_col)
 
-def makeMemeText(text_arr):
+
+def make_meme_text(text_arr):
     meme_text = []
     tagged_text_arr = []
     print(text_arr)
@@ -222,7 +213,7 @@ def makeMemeText(text_arr):
     return meme_text
 
 
-def getImageLinks(URL):
+def get_image_links(URL):
     html = None
     if 'cnn' in URL:
         html = open("./static/cnn.html", "r")
@@ -296,6 +287,7 @@ def getImageLinks(URL):
             imgs_alt.append(img_alt)
 
     return imgs_src, imgs_alt
+
 
 if __name__ == '__main__':
     app.run(threaded=True)
